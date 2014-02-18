@@ -1,0 +1,90 @@
+Roadmap
+========
+
+0.1:
+
+ - Authentication
+   - Multiple users (using devise)
+   - SSL (see: https://github.com/plataformatec/devise/wiki/How-To:-Use-SSL-(HTTPS) )
+
+ - Events (e.g. when a check-in is meant to occur)
+   - Once-off or stored for later as a template
+   - Settings
+     - Alert time (look at whenever or recurrent gems for implementing this i.e. something that knows if an alert wasn't sent correctly)
+     - Location (optional)
+     - Details (optional)
+     - Reminder to 'me' contact to check at (relative) time (optional)
+
+   - Associated contacts
+
+   - Associated reminder message (for 'me' contact, optional)
+     - Message per contact mechanism
+
+   - Associated messages
+     - Message per contact per contact mechanism
+
+   - Make an older check-in (and associated messages) into a template.
+     e.g. copy an existing check-in and messages, just updating the alert time.
+
+   - Canceling check-ins
+     - Password to cancel (optional) (stored on user)
+     - Duress password (optional) (stored on user)
+
+ - Check-in template
+   - Stored settings
+   - Stored associated contacts
+   - Stored associated messages
+
+ - Contacts
+   - 'Me' contact for reminders
+   - Default contacts for check-ins
+   - Multiple email addresses/SMS numbers per contact
+   - Send opt-out confirmation email/SMS for each address/number added
+
+ - Messages
+  - Have a mechanism (email or SMS)
+
+   - Via email (Look at ActionMailer gem)
+    - Email address
+
+   - Via SMS (e.g. via Clickatell email-to-SMS gateway)
+    - Mobile number
+
+  - Have message text
+
+ - Test suite
+
+ - Deployment scripting to create a robust environment for 24/7 reliability e.g. dual VMs, failover roles.
+
+    - Include a (say, Nagios) monitoring node to warn if failure occurs.
+
+0.2:
+
+ - Messages
+   - Have templates to insert details
+
+ - Contacts
+   - Confirm alert receipt (optional)
+     - Password to confirm (optional) [Needs email domain, and email processing, or SMS gateway, and SMS processing.]
+     - Duress password (optional) [Ditto]
+
+
+0.x:
+
+ - Phone provider SMS gateway integration (e.g. Telstra, Optus)
+
+ - Google Calendar integration?
+
+ - Events:
+   - Recurring option (optional)
+
+ - Authenticated RESTful API for mobile apps
+   - over SSL or zero-knowledge challenge-response protocol for cancelling/confirming receipt.
+
+ - Mobile app (iPhone and Android)
+   - Sending GPS information to application.
+
+
+Ideas:
+
+ - Consider using Guard while developing?

@@ -1,0 +1,142 @@
+Commands and rake/rails interactions used to generate this project
+
+
+rails new safetybeep
+cd safetybeep
+
+nano Gemfile # Add to the bottom:
+"""
+# Use devise for user authentication
+gem 'devise'
+
+# Use rspec for testing
+gem 'rspec'
+"""
+
+# Some of these installation steps are probably redundant.
+bundle install
+gem install rspec
+gem install devise
+
+rspec --init
+rails generate devise:install
+
+
+# From the devise instructions:
+
+Some setup you must do manually if you haven't yet:
+
+  1. Ensure you have defined default url options in your environments files. Here 
+     is an example of default_url_options appropriate for a development environment 
+     in config/environments/development.rb:
+
+       config.action_mailer.default_url_options = { :host => 'localhost:3000' }
+
+     In production, :host should be set to the actual host of your application.
+
+     [DONE]
+
+  2. Ensure you have defined root_url to *something* in your config/routes.rb.
+     For example:
+
+       root :to => "home#index"
+
+     [Done later with public#index]
+
+  3. Ensure you have flash messages in app/views/layouts/application.html.erb.
+     For example:
+
+       <p class="notice"><%= notice %></p>
+       <p class="alert"><%= alert %></p>
+
+     [Done below]
+
+  4. If you are deploying on Heroku with Rails 3.2 only, you may want to set:
+
+       config.assets.initialize_on_precompile = false
+
+     On config/application.rb forcing your application to not access the DB
+     or load models when precompiling your assets.
+
+     [Skipped]
+
+  5. You can copy Devise views (for customization) to your app by running:
+
+       rails g devise:views
+
+     [DONE]
+
+# Set up models
+rails g devise user
+rake db:migrate
+rails generate controller public index
+rails generate scaffold Event name:string:index location:string details:string alert_time:datetime:index reminder_time:datetime:index
+rake db:migrate
+
+# Fix user-related tests
+nano app/test/fixtures/users.yml # Replace existing one: and two: entries with:
+"""
+one:
+  email: user@example.com
+  encrypted_password: password1
+
+two:
+  email: user2@example.com
+  encrypted_password: password2
+"""
+
+# Set base welcome page to be the default page.
+nano ./config/routes.rb # Paste in the following anywhere before 'end':
+"""
+root to: "public#index"
+"""
+
+# Tests should work correctly at this point.
+rake test
+
+
+# Finish devise install
+nano ./app/views/layouts/application.html.erb # Paste in devise log in navbar, and notice/alert code:
+"""
+<p class="navbar-text pull-right">
+<% if user_signed_in? %>
+  Logged in as <strong><%= current_user.email %></strong>.
+  <%= link_to 'Edit profile', edit_user_registration_path, :class => 'navbar-link' %> |
+  <%= link_to "Logout", destroy_user_session_path, method: :delete, :class => 'navbar-link'  %>
+<% else %>
+  <%= link_to "Sign up", new_user_registration_path, :class => 'navbar-link'  %> |
+  <%= link_to "Login", new_user_session_path, :class => 'navbar-link'  %>
+<% end %>
+
+<p class="notice"><%= notice %></p>
+<p class="alert"><%= alert %></p>
+"""
+
+# Set up user auth on event actions.
+nano ./app/controllers/events_controller.rb # Paste in the following, at the beginning of the class:
+"""
+  # From devise installation: force users to be logged in.
+  before_action :authenticate_user!
+"""
+
+# Fix test cases for use with Devise and authenticate_user.
+nano test/test_helper.rb # Paste in the following after the require statements:
+"""
+class ActionController::TestCase
+  include Devise::TestHelpers
+end
+"""
+
+nano spec/support/devise.rb # Paste in the following:
+"""
+RSpec.configure do |config|
+  config.include Devise::TestHelpers, :type => :controller
+end
+"""
+
+nano test/controllers/events_controller_test.rb # Add the following to the setup do section
+"""
+sign_in users(:one)
+"""
+
+rake test
